@@ -83,11 +83,11 @@ instruction
   = path:path commands:command* { return new Instruction(path, new Invocation(commands)); }
 
 path
-  = left:step "." right:step { return new Path(left, right); }
+  = left:step "." right:path { return new Path(left, right); }
   / step
 
 step
-  = name:rel qualifiers:qualifier* { return new Step(name, qualifiers); }
+  = name:identifier qualifiers:qualifier* { return new Step(name, qualifiers); }
 
 qualifier
   = forceReloadQualifier
@@ -112,20 +112,16 @@ command
   / emitsCommand
 
 withCommand
-  = " with " name:identifier { return new With(name); }
+  = " with "i name:identifier { return new With(name); }
 
 asCommand
-  = " as " name:identifier { return new As(name); }
+  = " as "i name:identifier { return new As(name); }
 
 emitsCommand
-  = " emits " responseCode:integer { return new Emits(responseCode); }
-
-rel
-  = chars:[a-zA-Z]+ { return chars.join(""); }
+  = " emits "i responseCode:integer { return new Emits(responseCode); }
 
 integer
   = digits:[0-9]+ { return parseInt(digits.join(""), 10); }
 
 identifier
   = chars: [_a-zA-Z]+[_a-zA-Z0-9]* { return chars.join(""); }
-

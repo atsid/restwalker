@@ -43,6 +43,15 @@ describe("The Grammar Parser", () => {
         assert("derp![5]?{some_query_arg}");
     });
 
+    it("can parse a simple rel path", () => {
+        let result = parse("self.edit.delete");
+        expect(result.path.length).to.equal(3);
+        expect(result.path[0].name).to.equal("self");
+        expect(result.path[1].name).to.equal("edit");
+        expect(result.path[2].name).to.equal("delete");
+    });
+
+
     it("can parse a rel path", () => {
         let result = parse("create[0].edit?{derp}");
         expect(result.path.length).to.equal(2);
@@ -64,7 +73,7 @@ describe("The Grammar Parser", () => {
     });
 
     it("can parse 'emits' commands", () => {
-        let result = parse("edit with payload as result emits 200");
+        let result = parse("create.self.edit with payload as result emits 200");
         expect(result.invocation.with).to.equal("payload");
         expect(result.invocation.as).to.equal("result");
         expect(result.invocation.emits).to.equal(200);

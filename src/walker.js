@@ -1,6 +1,5 @@
 "use strict";
 let Promise = Promise || require("bluebird");
-
 let isFunction = (x) => typeof x === "function";
 let isString = (x) => typeof x === "string";
 let isArray = (x) => Array.isArray(x);
@@ -10,8 +9,9 @@ let isArray = (x) => Array.isArray(x);
  * verification steps when necessary.
  */
 class RestWalker {
-    constructor (parser) {
+    constructor (parser, executor) {
         this.parser = parser;
+        this.executor = executor;
     }
 
     /**
@@ -24,7 +24,9 @@ class RestWalker {
      * @returns {Promise} A promise that resolves when the sequence is complete.
      */
     invoke(sequence, context = {}) {
+        // Chain the sequence item execution sequentially.
         let promises = sequence.map((i) => () => this.handleSequenceItem(i, context));
+
         let result = Promise.resolve(true);
         for (let itemPromise in promises) {
             result = result.then(itemPromise);
@@ -36,9 +38,10 @@ class RestWalker {
         if (isFunction(item)) {
             return Promise.resolve(item.apply(context));
         } else if (isString(item)) {
-            return this.makeRestPathCommand(item).execute(context);
+            let cmd = this.makeRestPathCommand(item);
+            this.executeCommand(cmd, context);
         } else if (isArray(item)) {
-            return Promise.all(item.map((i) => this.makeRestPathCommand(i).execute(context)));
+            return Promise.all(item.map((i) => this.makeRestPathCommand(i)).map((cmd) => this.executeCommand(cmd, context)));
         } else {
             throw new Error(`Could not handle sequence item: ${item}`);
         }
@@ -46,6 +49,10 @@ class RestWalker {
 
     makeRestPathCommand(instruction) {
         return this.parser.parse(instruction);
+    }
+
+    executeCommand(command, context) {
+        this.executor.execute(command, context);
     }
 }
 
