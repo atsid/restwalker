@@ -38,10 +38,7 @@ module.exports = {
             });
         });
         gulp.task("tdd-test", () => {
-            runMocha()
-                .on("error", (err) => {
-                    gutil.log("TDD Error: " + err.message);
-                });
+            runMocha().on("error", (err) => gutil.log("TDD Error: " + err.message));
         });
     }
 };

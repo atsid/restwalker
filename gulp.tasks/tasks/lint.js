@@ -32,6 +32,6 @@ module.exports = {
         gulp.task("lint-test", () => hardFailing(lint(TEST_STATIC_CHECK_GLOB, testLintConf)));
         gulp.task("tdd-lint", ["tdd-lint-source", "tdd-lint-test"]);
         gulp.task("tdd-lint-source", () => lint(SRC_STATIC_CHECK_GLOB));
-        gulp.task("tdd-lint-test", () => lint(TEST_STATIC_CHECK_GLOB));
+        gulp.task("tdd-lint-test", () => lint(TEST_STATIC_CHECK_GLOB, testLintConf));
     }
 };

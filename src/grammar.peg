@@ -1,0 +1,131 @@
+{
+    function Step(name, qualifiers) {
+      this.name = name;
+      this.forceReload = false;
+      var that = this;
+      qualifiers.forEach(function(q) {
+        q.augment(that);
+      })
+    }
+
+    function IndexQualifier(index) {
+      this.index = index;
+
+      this.augment = function (step) {
+        step.index = this.index;
+      }
+    }
+
+    function QueryQualifier(text) {
+      this.text = text;
+      this.augment = function (step) {
+        step.query = this.text;
+      }
+    }
+
+    function ForceReloadQualifier() {
+      this.augment = function(step) {
+        step.forceReload = true;
+      }
+    }
+
+    function Path(left, right) {
+      this.steps = [];
+      function addSteps(source) {
+        if (source.steps) {
+          this.steps = this.steps.concat(source.steps);
+        } else {
+          this.steps.push(source);
+        }
+      }
+      addSteps.apply(this, [left]);
+      addSteps.apply(this, [right]);
+    }
+
+    function Instruction(path, invocation) {
+      this.path = path.steps || [ path ];
+      this.invocation = invocation || {};
+    }
+
+    function Invocation(commands) {
+      var that = this;
+      commands.forEach(function(q) {
+        q.augment(that);
+      })
+    }
+
+    function With(name) {
+      this.name = name;
+      this.augment = function (invocation) {
+        invocation.with = name;
+      }
+    }
+
+    function As(name) {
+      this.name = name;
+      this.augment = function (invocation) {
+        invocation.as = name;
+      }
+    }
+
+    function Emits(code) {
+      this.code = code;
+      this.augment = function(invocation) {
+        invocation.emits = code;
+      }
+    }
+}
+
+start
+  = instruction
+
+instruction
+  = path:path commands:command* { return new Instruction(path, new Invocation(commands)); }
+
+path
+  = left:step "." right:step { return new Path(left, right); }
+  / step
+
+step
+  = name:rel qualifiers:qualifier* { return new Step(name, qualifiers); }
+
+qualifier
+  = forceReloadQualifier
+  / queryQualifier
+  / indexQualifier
+
+queryQualifier
+  = "?{" query:queryText "}" { return new QueryQualifier(query); }
+
+indexQualifier
+  = "[" index:integer "]" { return new IndexQualifier(index); }
+
+forceReloadQualifier
+  = "!" { return new ForceReloadQualifier(); }
+
+queryText "string"
+  = chars: [^{}]* { return chars.join(""); }
+
+command
+  = withCommand
+  / asCommand
+  / emitsCommand
+
+withCommand
+  = " with " name:identifier { return new With(name); }
+
+asCommand
+  = " as " name:identifier { return new As(name); }
+
+emitsCommand
+  = " emits " responseCode:integer { return new Emits(responseCode); }
+
+rel
+  = chars:[a-zA-Z]+ { return chars.join(""); }
+
+integer
+  = digits:[0-9]+ { return parseInt(digits.join(""), 10); }
+
+identifier
+  = chars: [_a-zA-Z]+[_a-zA-Z0-9]* { return chars.join(""); }
+

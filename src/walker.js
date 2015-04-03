@@ -1,7 +1,5 @@
 "use strict";
 let Promise = Promise || require("bluebird");
-//let debug = require("debug")("app:test:rest_walker");
-let Command = require("./command");
 
 let isFunction = (x) => typeof x === "function";
 let isString = (x) => typeof x === "string";
@@ -12,6 +10,10 @@ let isArray = (x) => Array.isArray(x);
  * verification steps when necessary.
  */
 class RestWalker {
+    constructor (parser) {
+        this.parser = parser;
+    }
+
     /**
      * Invokes a RESTful testing sequence
      * @param sequence An array of commands. A command may be:
@@ -32,7 +34,7 @@ class RestWalker {
 
     handleSequenceItem(item, context) {
         if (isFunction(item)) {
-            return Promise.cast(item.apply(context));
+            return Promise.resolve(item.apply(context));
         } else if (isString(item)) {
             return this.makeRestPathCommand(item).execute(context);
         } else if (isArray(item)) {
@@ -43,40 +45,7 @@ class RestWalker {
     }
 
     makeRestPathCommand(instruction) {
-        let firstSpaceIndex = instruction.indexOf(" ");
-
-        // <rel path> <command> <command> <command>
-        // e.g. root.login with credentials as user
-        let relPath = instruction, commands = [];
-        if (firstSpaceIndex !== -1) {
-            relPath = instruction.substring(0, firstSpaceIndex);
-            commands = instruction.substring(firstSpaceIndex).trim().split(" ");
-        }
-
-        // Parse Commands ("with", "as", "emits")
-        let resultAlias = null;
-        let payloadProperty = null;
-        let expectedResponseCode = null;
-
-        if (commands.length % 2 !== 0) {
-            throw new Error(`Unexpected number of commands ${commands.length}`);
-        }
-        // by 2)
-        for (let index in [0..commands.length - 2]) {
-            let commandName = commands[index];
-            let commandData = commands[index + 1];
-            if (commandName === "as") {
-                resultAlias = commandData;
-            }
-            else if (commandName === "with") {
-                payloadProperty = commandData;
-            }
-            else if (commandName === "emits") {
-                expectedResponseCode = parseInt(commandData);
-            }
-
-            new Command(relPath, resultAlias, payloadProperty, expectedResponseCode);
-        }
+        return this.parser.parse(instruction);
     }
 }
 
