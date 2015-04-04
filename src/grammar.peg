@@ -1,7 +1,6 @@
 {
     function Step(name, qualifiers) {
       this.name = name;
-      this.forceReload = false;
       var that = this;
       qualifiers.forEach(function(q) {
         q.augment(that);
@@ -20,12 +19,6 @@
       this.text = text;
       this.augment = function (step) {
         step.query = this.text;
-      }
-    }
-
-    function ForceReloadQualifier() {
-      this.augment = function(step) {
-        step.forceReload = true;
       }
     }
 
@@ -90,8 +83,7 @@ step
   = name:identifier qualifiers:qualifier* { return new Step(name, qualifiers); }
 
 qualifier
-  = forceReloadQualifier
-  / queryQualifier
+  = queryQualifier
   / indexQualifier
 
 queryQualifier
@@ -99,9 +91,6 @@ queryQualifier
 
 indexQualifier
   = "[" index:integer "]" { return new IndexQualifier(index); }
-
-forceReloadQualifier
-  = "!" { return new ForceReloadQualifier(); }
 
 queryText "string"
   = chars: [^{}]* { return chars.join(""); }

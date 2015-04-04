@@ -37,10 +37,9 @@ describe("The Grammar Parser", () => {
             expect(result.path[0].name).to.equal("derp");
             expect(result.path[0].query).to.equal("some_query_arg");
             expect(result.path[0].index).to.equal(5);
-            expect(result.path[0].forceReload).to.equal(true);
         };
-        assert("derp!?{some_query_arg}[5]");
-        assert("derp![5]?{some_query_arg}");
+        assert("derp?{some_query_arg}[5]");
+        assert("derp[5]?{some_query_arg}");
     });
 
     it("can parse a simple rel path", () => {

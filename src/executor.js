@@ -11,6 +11,7 @@ class Executor {
     }
 
     execute(command, context) {
+        debug("Executing command", command);
         // Walk the command path. Link methods must be GET
         let pathLength = command.path.length;
         let lastCommand = command.path[pathLength - 1];
@@ -22,19 +23,13 @@ class Executor {
         for (let pathItem of command.path.slice(0, pathLength - 1)) {
             chain = chain.then((result) => this.takeGetStep(result, pathItem));
         }
-
-        return chain
-            .then((result) => this.takeStep(result, lastCommand, context, command))
-            .catch((err) => {
-                debug("Caught Error", err);
-            });
+        return chain.then((result) => this.takeStep(result, lastCommand, context, command));
     }
 
     takeGetStep(res, step) {
         debug(`taking step ${step.name}`);
         // TODO: Configure link retrieval.
         // TODO: Link method case insensitivity.
-        console.log("Link", res);
         let link = res.links[step.name];
         if (link.method !== "GET") {
             throw new Error("Expected 'GET' link");
@@ -74,17 +69,20 @@ class Executor {
 
             let invocation = this.runner.invokeRaw(method, path);
             if (command.invocation.with) {
-                invocation = invocation.send(context[step.invocation.with]);
+                let payload = context[command.invocation.with];
+                debug("sending payload ", payload);
+                invocation = invocation.send(payload);
             }
             if (command.invocation.emits) {
-                invocation = invocation.expect(step.invocation.emits);
+                invocation = invocation.expect(command.invocation.emits);
             }
             invocation.end((err, res) => {
+                let result = step.index ? res.body.items[step.index] : res.body;
                 if (err) {
                     return reject(err);
                 } else {
                     if (command.invocation.as) {
-                        context[command.invocation.as] = res.body;
+                        context[command.invocation.as] = result;
                     }
                     resolve();
                 }
