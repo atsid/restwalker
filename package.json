@@ -10,8 +10,9 @@
   "license": "Apache",
   "dependencies": {
     "bluebird": "^2.9.24",
+    "debug": "^2.1.3",
     "pegjs": "^0.8.0",
-    "superagent": "^1.1.0"
+    "supertest": "^0.15.0"
   },
   "devDependencies": {
     "babel": "^5.0.2",
@@ -19,6 +20,7 @@
     "codeclimate-test-reporter": "0.0.4",
     "del": "^1.1.1",
     "express": "^4.12.3",
+    "express-jefferson": "^2.0.0",
     "gulp": "^3.8.11",
     "gulp-babel": "^5.0.0",
     "gulp-changed": "^1.2.1",
@@ -29,7 +31,6 @@
     "gulp-semver-tasks": "^0.1.0",
     "gulp-util": "^3.0.4",
     "isparta": "^2.2.0",
-    "run-sequence": "^1.0.2",
-    "supertest": "^0.15.0"
+    "run-sequence": "^1.0.2"
   }
 }
