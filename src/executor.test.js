@@ -228,7 +228,13 @@ describe("The HTTP Executor", () => {
         let executor = new Executor(new Runner(request(app)));
         let context = {payload: {a: 1}};
         executor.execute(cmd("self.create with payload as data emits 200"), context)
-        .then(() => { throw new Error("Did not expect resolution"); })
-        .catch((err) => done())
+            .then(() => {
+                throw new Error("Did not expect resolution");
+            })
+            .catch((err) => {
+                expect(err).to.be.ok;
+                done();
+            });
+
     });
 });
