@@ -39,3 +39,16 @@ Commmands describe interactions with the result of service invocations.
 * **with** - `with <propertyName>` These commands use the value of `propertyName` on the context object to invoke an endpoint that accepts a payload. e.g. `root.create_listing with listingData`
 * **as** - `as <propertyName` These commands populate the value of `propertyName` on the context object as the result of the service invocation.  e.g. `root.view_profile as profile`
 * **emits** - `emits <statusCode>` - Performs an assertion that the service emits a status code as the result of an invocation. e.g. `root.view_list[0].delete emits 204`
+
+
+# examples
+```js
+let script = [
+   'root.login with credentials as user'
+   'user.view_profile as profile'
+   function() { expect(profile.password).to.be.undefined; }
+   'user.delete emits 204'
+];
+let context = { username: 'mr_test', password: 'derp' }
+walker.invoke(script, context);
+```
