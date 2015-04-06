@@ -1,4 +1,7 @@
 [![Build Status](https://travis-ci.org/atsid/restwalker.svg?branch=master)](https://travis-ci.org/atsid/restwalker)
+[![Test Coverage](https://codeclimate.com/github/atsid/restwalker/badges/coverage.svg)](https://codeclimate.com/github/atsid/restwalker)
+[![Code Climate](https://codeclimate.com/github/atsid/restwalker/badges/gpa.svg)](https://codeclimate.com/github/atsid/restwalker)
+[![Dependency Status](https://david-dm.org/atsid/restwalker.svg)](https://david-dm.org/atsid/restwalker)
 
 # restwalker
 HATEOAS Integration Testing
