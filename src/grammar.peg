@@ -113,4 +113,4 @@ integer
   = digits:[0-9]+ { return parseInt(digits.join(""), 10); }
 
 identifier
-  = chars:[_a-zA-Z]+[-_a-zA-Z0-9]* { return chars.join(""); }
+  = $([_a-zA-Z]+[-_a-zA-Z0-9]*)

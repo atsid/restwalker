@@ -46,7 +46,7 @@ describe("The script walker", () => {
                             id: "chris",
                             email: "a@b.com",
                             links: {
-                                "view_gh_profile": {
+                                "view-profile": {
                                     href: "/gh",
                                     method: "GET"
                                 }
@@ -73,7 +73,7 @@ describe("The script walker", () => {
         };
         let script = [
             "root.login with credentials as user",
-            "user.view_gh_profile as profile"
+            "user.view-profile as profile"
         ];
         return walker.invoke(script, context)
         .then(() => {
