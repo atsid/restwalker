@@ -4,7 +4,7 @@
   "description": "HATOAS Service Testing",
   "main": "index.js",
   "scripts": {
-    "test": "gulp"
+    "test": "gulp ci-build && CODECLIMATE_REPO_TOKEN=693dad23c979fc23109e35bfbde268b7e940e3b55b66d44787dbefaea6f597a8 codeclimate < coverage/lcov.info"
   },
   "author": "Chris Trevino <chris.trevino@atsid.com>",
   "license": "Apache",
