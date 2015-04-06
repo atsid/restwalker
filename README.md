@@ -21,7 +21,7 @@ The service walker accepts a series of commands, which may be strings, functions
 The path describes a rel-based route to a specific invocation on a resource.
 
 `<pathitem>.<pathitem>.<pathitem>...`
-A path must start with the name of a proprety name (resolved on the context object), or `root`, which represents the service root. Path items are delimeted by `.`. 
+A path must start with the name of a proprety name (resolved on the context object), or `root`, which represents the service root. Path items are delimited by `.`. 
 
 ### pathitem
 `<rel><qualifier>`
@@ -43,12 +43,12 @@ Commmands describe interactions with the result of service invocations.
 
 # examples
 ```js
-let script = [
+var script = [
    'root.login with credentials as user'
    'user.view_profile as profile'
    function() { expect(profile.password).to.be.undefined; }
    'user.delete emits 204'
 ];
-let context = { username: 'mr_test', password: 'derp' }
+var context = { username: 'mr_test', password: 'derp' }
 walker.invoke(script, context);
 ```
