@@ -15,12 +15,23 @@ class Executor {
         // Walk the command path. Link methods must be GET
         let pathLength = command.path.length;
         let lastCommand = command.path[pathLength - 1];
+        let initialPathName = command.path[0].name;
 
-        let chain = this.runner.get("/").then((res) => {
-            debug(`retrieved service root`);
-            return res.body;
-        });
-        for (let pathItem of command.path.slice(0, pathLength - 1)) {
+        let chain = null;
+        if (initialPathName === "root") {
+            chain = this.runner.get("/").then((res) => {
+                debug(`retrieved service root`);
+                return res.body;
+            });
+        } else {
+            let initialEntity = context[initialPathName];
+            if (!initialEntity) {
+                throw new Error(`Initial entity "${initialPathName}" is not defined`);
+            }
+            chain = Promise.resolve(context[initialPathName]);
+        }
+
+        for (let pathItem of command.path.slice(1, pathLength - 1)) {
             chain = chain.then((result) => this.takeGetStep(result, pathItem));
         }
         return chain.then((result) => this.takeStep(result, lastCommand, context, command));
@@ -31,6 +42,9 @@ class Executor {
         // TODO: Configure link retrieval.
         // TODO: Link method case insensitivity.
         let link = res.links[step.name];
+        if (!link) {
+            throw new Error(`link "${step.name}" does not exist`);
+        }
         if (link.method !== "GET") {
             throw new Error("Expected 'GET' link");
         }
@@ -54,6 +68,9 @@ class Executor {
         debug(`taking final step '${step.name}'`);
         return new Promise((resolve, reject) => {
             let link = res.links[step.name];
+            if (!link) {
+                reject(new Error(`link "${step.name}" does not exist`));
+            }
             let method = link.method.toLowerCase();
             let path = link.href;
             if (!method) {

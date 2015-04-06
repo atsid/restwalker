@@ -1,4 +1,5 @@
 "use strict";
+let debug = require("debug")("restwalker");
 let Promise = Promise || require("bluebird");
 let isFunction = (x) => typeof x === "function";
 let isString = (x) => typeof x === "string";
@@ -9,7 +10,13 @@ let isArray = (x) => Array.isArray(x);
  * verification steps when necessary.
  */
 class RestWalker {
-    constructor (parser, executor) {
+    constructor(parser, executor) {
+        if (!parser) {
+            throw new Error("parser must be defined");
+        }
+        if (!executor) {
+            throw new Error("executor must not be defined");
+        }
         this.parser = parser;
         this.executor = executor;
     }
@@ -24,35 +31,34 @@ class RestWalker {
      * @returns {Promise} A promise that resolves when the sequence is complete.
      */
     invoke(sequence, context = {}) {
-        // Chain the sequence item execution sequentially.
-        let promises = sequence.map((i) => () => this.handleSequenceItem(i, context));
-
-        let result = Promise.resolve(true);
-        for (let itemPromise in promises) {
-            result = result.then(itemPromise);
-        }
-        return result;
+        let promise = Promise.resolve(true);
+        sequence.forEach((item) => {
+            promise = promise.then(() => this.handleSequenceItem(item, context));
+        });
+        return promise;
     }
 
     handleSequenceItem(item, context) {
         if (isFunction(item)) {
+            debug(`handling sequence function`);
             return Promise.resolve(item.apply(context));
         } else if (isString(item)) {
-            let cmd = this.makeRestPathCommand(item);
-            this.executeCommand(cmd, context);
+            debug(`handling sequence command "${item}"`);
+            return this.executeCommand(this.parseInstruction(item), context);
         } else if (isArray(item)) {
-            return Promise.all(item.map((i) => this.makeRestPathCommand(i)).map((cmd) => this.executeCommand(cmd, context)));
+            debug(`handling sequence array`);
+            return Promise.all(item.map((i) => this.parseInstruction(i)).map((cmd) => this.executeCommand(cmd, context)));
         } else {
             throw new Error(`Could not handle sequence item: ${item}`);
         }
     }
 
-    makeRestPathCommand(instruction) {
+    parseInstruction(instruction) {
         return this.parser.parse(instruction);
     }
 
     executeCommand(command, context) {
-        this.executor.execute(command, context);
+        return this.executor.execute(command, context);
     }
 }
 

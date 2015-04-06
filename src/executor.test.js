@@ -45,7 +45,37 @@ describe("The HTTP Executor", () => {
         });
 
         let executor = new Executor(new Runner(request(app)));
-        return executor.execute(cmd("self"), {});
+        return executor.execute(cmd("root.self"), {});
+    });
+
+    it("emits a promise error when the rel does not exist", (done) => {
+        let app = testApp({
+            "routes": {
+                "/": {
+                    get: [(req, res) => {
+                        res.json({
+                            title: "testService",
+                            links: {
+                                "self": {
+                                    href: "/",
+                                    method: "GET"
+                                }
+                            }
+                        });
+                    }]
+                }
+            }
+        });
+
+        let executor = new Executor(new Runner(request(app)));
+        executor.execute(cmd("root.derp"), {})
+        .then(() => {
+            throw new Error("Did not expect resolution");
+        })
+        .catch((err) => {
+            expect(err).to.exist;
+            done();
+        });
     });
 
     it("can populate the context using an 'as' command", () => {
@@ -69,7 +99,7 @@ describe("The HTTP Executor", () => {
 
         let executor = new Executor(new Runner(request(app)));
         let context = {};
-        return executor.execute(cmd("self as self"), context).then(() => {
+        return executor.execute(cmd("root.self as self"), context).then(() => {
             expect(context.self.title).to.equal("testService");
         });
     });
@@ -110,7 +140,7 @@ describe("The HTTP Executor", () => {
 
         let executor = new Executor(new Runner(request(app)));
         let context = {};
-        return executor.execute(cmd("self.data[1] as data"), context).then(() => {
+        return executor.execute(cmd("root.self.data[1] as data"), context).then(() => {
             expect(context.data.name).to.equal("derp");
         });
     });
@@ -154,7 +184,7 @@ describe("The HTTP Executor", () => {
 
         let executor = new Executor(new Runner(request(app)));
         let context = {};
-        return executor.execute(cmd("self.data[1]?{a=1} as data"), context).then(() => {
+        return executor.execute(cmd("root.self.data[1]?{a=1} as data"), context).then(() => {
             expect(context.data.name).to.equal("derp");
         });
     });
@@ -190,7 +220,7 @@ describe("The HTTP Executor", () => {
 
         let executor = new Executor(new Runner(request(app)));
         let context = {payload: {a: 1}};
-        return executor.execute(cmd("self.create with payload as data"), context).then(() => {
+        return executor.execute(cmd("root.self.create with payload as data"), context).then(() => {
             expect(context.data).to.be.ok;
             expect(context.data.a).to.equal(1);
         });
@@ -227,7 +257,7 @@ describe("The HTTP Executor", () => {
 
         let executor = new Executor(new Runner(request(app)));
         let context = {payload: {a: 1}};
-        executor.execute(cmd("self.create with payload as data emits 200"), context)
+        executor.execute(cmd("root.self.create with payload as data emits 200"), context)
             .then(() => {
                 throw new Error("Did not expect resolution");
             })
