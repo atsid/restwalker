@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/atsid/restwalker.svg?branch=master)](https://travis-ci.org/atsid/restwalker)
+
 # restwalker
 HATEOAS Integration Testing
 
