@@ -3,9 +3,13 @@ let runSequence = require("run-sequence");
 
 module.exports = {
     init (gulp) {
+        gulp.task("copygrammar", () => {
+            return gulp.src("src/*.peg")
+                .pipe(gulp.dest("dist"));
+        });
         gulp.task("build", (cb) => {
             runSequence(
-                ["lint", "babel"],
+                ["lint", "babel", "copygrammar"],
                 "test",
                 cb
             );

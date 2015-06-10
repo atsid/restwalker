@@ -15,7 +15,7 @@ class RestWalker {
             throw new Error("parser must be defined");
         }
         if (!executor) {
-            throw new Error("executor must not be defined");
+            throw new Error("executor must be defined");
         }
         this.parser = parser;
         this.executor = executor;
