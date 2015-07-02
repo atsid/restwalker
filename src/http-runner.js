@@ -18,6 +18,11 @@ class HttpRunner {
             throw new Error("expected agent to be defined");
         }
         this.agent = agent;
+        this.root = "";
+    }
+
+    setRoot(root) {
+        this.root = root;
     }
 
     invoke(method, path) {
@@ -31,7 +36,7 @@ class HttpRunner {
         if (!path) {
             throw new Error("path must be defined");
         }
-        return this.agent[method](path);
+        return this.agent[method](this.root + path);
     }
 
     get (path) {

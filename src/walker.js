@@ -21,6 +21,11 @@ class RestWalker {
         this.executor = executor;
     }
 
+    setRoot(root) {
+        this.executor.setRoot(root);
+    }
+
+
     /**
      * Invokes a RESTful testing sequence
      * @param sequence An array of commands. A command may be:
