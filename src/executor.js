@@ -10,6 +10,10 @@ class Executor {
         this.runner = runner;
     }
 
+    setRoot(root) {
+        this.runner.setRoot(root);
+    }
+
     execute(command, context) {
         debug("Executing command", command);
         // Walk the command path. Link methods must be GET

@@ -48,6 +48,30 @@ describe("The HTTP Executor", () => {
         return executor.execute(cmd("root.self"), {});
     });
 
+    it("has a setRoot method which can change route paths", () => {
+        let app = testApp({
+            "routes": {
+                "/api": {
+                    get: [(req, res) => {
+                        res.json({
+                            title: "testService",
+                            links: {
+                                "self": {
+                                    href: "/",
+                                    method: "GET"
+                                }
+                            }
+                        });
+                    }]
+                }
+            }
+        });
+
+        let executor = new Executor(new Runner(request(app)));
+        executor.setRoot("/api");
+        return executor.execute(cmd("root.self"), {});
+    });
+
     it("emits a promise error when the rel does not exist", (done) => {
         let app = testApp({
             "routes": {
